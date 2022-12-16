@@ -14,4 +14,71 @@
 - If you still cannot use the introduced envrionment, you could do pip install protobuf==3.20.* under that environmetn to solve the issue.
 
 
-#### 
+#### Folder 2: Yolov4Files
+
+- data source: https://www.kaggle.com/competitions/state-farm-distracted-driver-detection/data (for mission2)
+- data source2: self labeled and gathered (for mission1)
+- To be clear, there are 3 set of files you need to know to run the yolov4.
+- Firstly, there is a notebook called yolov4_hui.ipynb used for you to run on Colab and test
+- 
+- 
+- All train and valid files should be stored in directory darknet/data as folders.
+- There are two missions here. 1. Do phone detection in picture and video. The required datasets are phone_train, phone_valid, phone2_train, phone2_valid. 2. Do phone+person as a whole detection. The labeled datasets are car_train, car_valid folders.
+-
+- 
+- All the configure files 1. yolo-obj1.cfg for mission1 and 2. yolov4-car_phone.cfg are stored in darknet/cfg
+- 
+- 
+- 
+- 
+- Then, another set of configure files are stored in /darknet/data too. 1. obj1.data and obj1.name for mission 1 and 2. obj2.name and obj2.data for mission2.
+- The only thing you need to modify is obj1.data
+
+#### Folder 2: Continue
+- classes = 1 
+- train = data/phone2_train.txt 
+- valid = data/phone2_valid.txt 
+- names = data/obj1.names
+- backup = backup3/
+
+- The obj1.data looks like this. Since there are two set of datasets for mission 1, you can change like train = data/phone2_train.txt or  train = data/phone_train.txt => to choose which dataset to run.
+- backup is to choose which folder you want to set up to save the training weights.
+- For my project, the mission 1's weights is yolo-obj1_final.weights. The mission 2's weights is yolov4-car_phone_best.weights.
+
+#### Folder 2: Demo
+- All these command are done in ipynb notebook under darknet directory.
+- you need to make file first
+- !sed -i 's/OPENCV=0/OPENCV=1/' Makefile
+- !sed -i 's/GPU=0/GPU=1/' Makefile
+- !sed -i 's/CUDNN=0/CUDNN=1/' Makefile
+- !sed -i 's/CUDNN_HALF=0/CUDNN_HALF=1/' Makefile
+- And then, !make
+- And then, !wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v3_optimal/yolov4.weights
+- If you want to train, mission 1 and 2's command
+- !./darknet detector train data/obj1.data cfg/yolo-obj1.cfg /root/project/darknet/yolov4.conv.137 -dont_show -mjpeg_port 8090 -map
+- !./darknet detector train data/obj2.data cfg/yolov4-car_phone.cfg /root/project/darknet/yolov4.conv.137 -dont_show -mjpeg_port 8090 -map
+- This command uses the mission's data and configurations to do train, the training weights can be downloaded from Darknet Yolov4 git. I also provide a copy in google drive. The final weights will be saved in backup folder
+- 
+
+- If you want to compute the mAP result
+- !./darknet detector map data/obj2.data cfg/yolov4-car_phone.cfg /root/project/darknet/backup/yolov4-car_phone_best.weights -points0
+- 
+- If you want to do test on image
+- !./darknet detector test data/obj2.data cfg/yolov4-car_phone.cfg /root/project/darknet/backup/yolov4-car_phone_best.weights -ext_output /root/project/10.jpg(this is the path of your input data) -dont_show -thresh 0.3
+- The result can be found called predictions.jpg picture in darknet file
+
+- If you want to do test on video
+- !./darknet detector demo cfg/coco.data cfg/yolov4.cfg yolov4.weights -dont_show /root/project/phone.mkv -i 0.9 -out_filename /root/project/results.mp4
+- Change the cfg file, data, and weights as you wish to do so.
+
+#### The link to google drive is here: https://drive.google.com/drive/folders/1AXcsACt59imeR0MjctEbZMv_m7WnKJVR?usp=sharing
+You could download and use Colab to train and test by yourself.
+The car12345.jpg and car_phone.ipyb should be placed under darknet folder to test.The mAP is 93.77% and the image of car1.jpg should be wrongly detected as "hair and makeup" for clarifying the disadvantage of input dataset and yolov4 as discussed in writeup. car5.jpg comes from dataset. The others are just to show the code's performance. (mission2)
+my4.jpg and strengthed_phone.ipynb are used for you to train and test by yourself too. (For mission1)
+
+There is also a files called yolov4_hui.ipynb which should be run on Colab by under /content folder.
+
+If you have any question, feel free to contact me immediately and I will answer you how to run the code.
+
+#### Take care
+If you have something in obj1.data or obj2.data which sets the backup = backup3/, feel free to change it to backup = backup/ to let the code run properly.
